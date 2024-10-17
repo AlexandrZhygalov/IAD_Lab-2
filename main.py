@@ -7,7 +7,8 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (confusion_matrix, precision_score, recall_score,
                              f1_score, roc_curve, auc, precision_recall_curve,
-                             mean_squared_error, mean_absolute_error, r2_score, mean_absolute_percentage_error)
+                             mean_squared_error, mean_absolute_error, r2_score, mean_absolute_percentage_error,
+                             classification_report, accuracy_score)
 
 
 # 1 завдання - Представити початковi данi графiчно.
@@ -285,34 +286,78 @@ multi_log_reg_iris.fit(X_train_iris, y_train_iris)
 
 
 # Виконання прогнозів на валідаційних даних
-y_pred_circles_simple_reg = simple_log_reg_circles.predict(X_val_circles)
-y_pred_circles_multi_reg = multi_log_reg_circles.predict(X_val_circles)
-y_pred_circles_simple_no_reg = simple_log_no_reg_circles.predict(X_val_circles)
-y_pred_circles_multi_no_reg = multi_log_no_reg_circles.predict(X_val_circles)
-y_pred_iris_simple_reg = simple_log_reg_iris.predict(X_val_iris)
-y_pred_iris_multi_reg = multi_log_reg_iris.predict(X_val_iris)
-y_pred_iris_simple_no_reg = simple_log_no_reg_iris.predict(X_val_iris)
-y_pred_iris_multi_no_reg = multi_log_no_reg_iris.predict(X_val_iris)
+y_val_pred_circles_simple_reg = simple_log_reg_circles.predict(X_val_circles)
+y_val_pred_circles_multi_reg = multi_log_reg_circles.predict(X_val_circles)
+y_val_pred_circles_simple_no_reg = simple_log_no_reg_circles.predict(X_val_circles)
+y_val_pred_circles_multi_no_reg = multi_log_no_reg_circles.predict(X_val_circles)
+y_val_pred_iris_simple_reg = simple_log_reg_iris.predict(X_val_iris)
+y_val_pred_iris_multi_reg = multi_log_reg_iris.predict(X_val_iris)
+y_val_pred_iris_simple_no_reg = simple_log_no_reg_iris.predict(X_val_iris)
+y_val_pred_iris_multi_no_reg = multi_log_no_reg_iris.predict(X_val_iris)
 
+
+y_train_pred_circles_simple_reg = simple_log_reg_circles.predict(X_train_circles)
+y_train_pred_circles_multi_reg = multi_log_reg_circles.predict(X_train_circles)
+y_train_pred_circles_simple_no_reg = simple_log_no_reg_circles.predict(X_train_circles)
+y_train_pred_circles_multi_no_reg = multi_log_no_reg_circles.predict(X_train_circles)
+y_train_pred_iris_simple_reg = simple_log_reg_iris.predict(X_train_iris)
+y_train_pred_iris_multi_reg = multi_log_reg_iris.predict(X_train_iris)
+y_train_pred_iris_simple_no_reg = simple_log_no_reg_iris.predict(X_train_iris)
+y_train_pred_iris_multi_no_reg = multi_log_no_reg_iris.predict(X_train_iris)
 
 # 6 завдання - Для кожної з моделей оцiнити, чи має мiсце перенавчання.
 
+train_accuracy_iris = accuracy_score(y_train_iris, y_val_pred_circles_simple_reg)
+val_accuracy_iris = accuracy_score(y_val_iris, y_val_pred_iris)
+
+print(f"\nТочність для навчального набору (Iris): {train_accuracy_iris:.4f}")
+print(f"Точність для валідаційного набору (Iris): {val_accuracy_iris:.4f}")
+
+# Детальний звіт по метриках для валідаційного набору
+print("\nЗвіт по метриках для набору Iris:")
+print(classification_report(y_val_iris, y_val_pred_iris))
+
+
+# 7 завдання - Розрахувати додатковi результати моделей, наприклад, апостерiорнi iмовiрностi або iншi (згiдно з варiантом).
+
+# Обираємо перший тестовий приклад для набору "Кільця"
+test_example_circles = X_val_circles[0].reshape(1, -1)  # Один тестовий приклад
+proba_circles = logreg_circles.predict_proba(test_example_circles)
+
+print(f"Тестовий приклад для 'Кільця': {test_example_circles}")
+print(f"Апостеріорні ймовірності для тестового прикладу (Circles): {proba_circles}")
+
+# Обираємо перший тестовий приклад для набору Iris
+test_example_iris = X_val_iris[0].reshape(1, -1)  # Один тестовий приклад
+proba_iris = logreg_iris.predict_proba(test_example_iris)
+
+print(f"\nТестовий приклад для Iris: {test_example_iris}")
+print(f"Апостеріорні ймовірності для тестового прикладу (Iris): {proba_iris}")
+
+
+# Розрахунок апостеріорних ймовірностей для набору 'Кільця'proba_circles = logreg_circles.predict_proba(X_val_circles)
+print("Апостеріорні ймовірності для валідаційного набору (Circles):")
+print(proba_circles[:5])  # Виводимо перші 5 записів для прикладу
+# Розрахунок апостеріорних ймовірностей для набору Irisproba_iris = logreg_iris.predict_proba(X_val_iris)
+print("\nАпостеріорні ймовірності для валідаційного набору (Iris):")
+print(proba_iris[:5])  # Виводимо перші 5 записів для прикладу
+
+
+# 10 завдання - В задачах регресiї розрахувати для кожної моделi наступнi критерiї якостi, окремо на навчальнiй та валiдацiйнiй множинах:
+# • коефiцiєнт детермiнацiї R2
+# • помилки RMSE, MAE та MAPE.
 
 
 
-
-# 7 завдання - Для кожної з моделей оцiнити, чи має мiсце перенавчання.
-# Апостеріорні ймовірності для тестового прикладу (make_circles)
-print("Апостеріорні ймовірності (простий логістичний регресор):", proba_simple_circles[0])
-print("Апостеріорні ймовірності (поліноміальний логістичний регресор):", proba_poly_circles[0])
-# Апостеріорні ймовірності для тестового прикладу (Iris)
-print("Апостеріорні ймовірності (простий логістичний регресор):", proba_simple_iris[0])
-print("Апостеріорні ймовірності (поліноміальний логістичний регресор):", proba_poly_iris[0])
+# 11 завдання - Спробувати виконати решiтчастий пошук (grid search) для пiдбору гiперпараметрiв моделей.
 
 
+# 12 завдання - Зробити висновки про якiсть роботи моделей на дослiджених даних. На основi критерiїв якостi
+# спробувати обрати найкращу модель.
 
 
-
+# 13 завдання - Навчити моделi на пiдмножинах навчальних даних. Оцiнити, наскiльки
+# розмiр навчальної множини впливає на якiсть моделi.
 
 
 
