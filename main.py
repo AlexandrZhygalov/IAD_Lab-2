@@ -1,14 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import warnings
 from sklearn.decomposition import PCA
 from sklearn.datasets import make_circles, load_iris
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import (confusion_matrix, precision_score, recall_score,
-                             f1_score, roc_curve, auc, precision_recall_curve,
-                             mean_squared_error, mean_absolute_error, r2_score, mean_absolute_percentage_error,
-                             classification_report, accuracy_score)
+from sklearn.metrics import (classification_report, accuracy_score, mean_squared_error, r2_score, mean_absolute_error)
+
+
+
 
 
 # 1 завдання - Представити початковi данi графiчно.
@@ -64,6 +65,7 @@ X_train_iris, X_val_iris, y_train_iris, y_val_iris = train_test_split(
 
 
 # 3 завдання - Побудувати на навчальному наборi даних моделi класифiкацiї або регресiї заданi згiдно з варiантом.
+
 """
 Логістична регресія — це метод класифікації, що прогнозує ймовірність належності до певного класу. Ключова мета 
 логістичної регресії — розділити дані на два або більше класів, використовуючи математичну функцію, яка 
@@ -122,57 +124,6 @@ multi_log_no_reg_iris.fit(X_train_iris, y_train_iris)
 
 
 # 4 завдання - Представити моделi графiчно (наприклад вивести частину дерева рiшень, побудувати лiнiю регресiї тощо).
-# Функція для побудови границь рішень
-"""
-def plot_decision_boundary(model, X, y, title):
-    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
-    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.01),
-                         np.arange(y_min, y_max, 0.01))
-    Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
-    Z = Z.reshape(xx.shape)
-    plt.contourf(xx, yy, Z, alpha=0.3, cmap='viridis')
-    plt.scatter(X[:, 0], X[:, 1], c=y, edgecolor='k', cmap='viridis')
-    plt.title(title)
-    plt.show()
-
-# Візуалізація для набору даних "кільця"
-plot_decision_boundary(simple_log_reg_circles, X_train_circles, y_train_circles, "Проста логістична регресія з регуляризацією (кільця)")
-plot_decision_boundary(simple_log_no_reg_circles, X_train_circles, y_train_circles, "Проста логістична регресія без регуляризації (кільця)")
-
-plot_decision_boundary(multi_log_reg_circles, X_train_circles, y_train_circles, "Поліноміальна логістична регресія з регуляризацією (кільця)")
-plot_decision_boundary(multi_log_no_reg_circles, X_train_circles, y_train_circles, "Поліноміальна логістична регресія без регуляризації (кільця)")
-
-
-def plot_decision_boundary_2(model, X, y, title):
-    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
-    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.01),
-                         np.arange(y_min, y_max, 0.01))
-
-    # Отримуємо ймовірності для кожного класу
-    Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
-    Z = Z.reshape(xx.shape)
-
-    plt.figure(figsize=(8, 6))
-    plt.contourf(xx, yy, Z, alpha=0.3, cmap='viridis')
-    plt.scatter(X[:, 0], X[:, 1], c=y, edgecolor='k', cmap='viridis', marker='o')
-    plt.title(title)
-    plt.xlabel('Довжина чашолистка')
-    plt.ylabel('Ширина чашолистка')
-    plt.colorbar(ticks=[0, 1, 2], label='Класи')
-    plt.show()
-
-# # Для набору Iris залишимо тільки дві ознаки, щоб можна було графічно представити границі рішень
-X_iris_2d = X_train_iris[:, :2]  # Вибираємо перші дві ознаки для зручності візуалізації
-
-plot_decision_boundary_2(simple_log_reg_iris, X_iris_2d, y_train_iris, "Проста логістична регресія з регуляризацією (Iris)")
-plot_decision_boundary_2(simple_log_no_reg_iris, X_iris_2d, y_train_iris, "Проста логістична регресія без регуляризації (Iris)")
-
-plot_decision_boundary_2(multi_log_reg_iris, X_iris_2d, y_train_iris, "Поліноміальна логістична регресія з регуляризацією (Iris)")
-plot_decision_boundary_2(multi_log_no_reg_iris, X_iris_2d, y_train_iris, "Поліноміальна логістична регресія без регуляризації (Iris)")
-
-"""
 # Функція для візуалізації моделей логістичної регресії кільця
 def plot_logistic_regression_comparison(X, y, models, titles):
     for model, title in zip(models, titles):
@@ -271,20 +222,6 @@ plot_iris_models_comparison(models_iris, titles_iris)
 
 
 # 5 завдання - Виконати прогнози на основi побудованих моделей.
-"""
-simple_log_no_reg_circles.fit(X_train_circles, y_train_circles)
-simple_log_no_reg_iris.fit(X_train_iris, y_train_iris)
-multi_log_no_reg_circles.fit(X_train_circles, y_train_circles)
-multi_log_no_reg_iris.fit(X_train_iris, y_train_iris)
-simple_log_reg_circles.fit(X_train_circles, y_train_circles)
-simple_log_reg_iris.fit(X_train_iris, y_train_iris)
-multi_log_reg_circles.fit(X_train_circles, y_train_circles)
-multi_log_reg_iris.fit(X_train_iris, y_train_iris)
-
-
-"""
-
-
 # Виконання прогнозів на валідаційних даних
 y_val_pred_circles_simple_reg = simple_log_reg_circles.predict(X_val_circles)
 y_val_pred_circles_multi_reg = multi_log_reg_circles.predict(X_val_circles)
@@ -305,81 +242,251 @@ y_train_pred_iris_multi_reg = multi_log_reg_iris.predict(X_train_iris)
 y_train_pred_iris_simple_no_reg = simple_log_no_reg_iris.predict(X_train_iris)
 y_train_pred_iris_multi_no_reg = multi_log_no_reg_iris.predict(X_train_iris)
 
+
 # 6 завдання - Для кожної з моделей оцiнити, чи має мiсце перенавчання.
+print("\nЗавдання 6")
+train_accuracy_circle_simple_reg = accuracy_score(y_train_circles, y_train_pred_circles_simple_reg)
+val_accuracy_circle_simple_reg = accuracy_score(y_val_circles, y_val_pred_circles_simple_reg)
+train_accuracy_iris_simple_reg = accuracy_score(y_train_iris, y_train_pred_iris_simple_reg)
+val_accuracy_iris_simple_reg = accuracy_score(y_val_iris, y_val_pred_iris_simple_reg)
+train_accuracy_circle_multi_reg = accuracy_score(y_train_circles, y_train_pred_circles_multi_reg)
+val_accuracy_circle_multi_reg = accuracy_score(y_val_circles, y_val_pred_circles_multi_reg)
+train_accuracy_iris_multi_reg = accuracy_score(y_train_iris, y_train_pred_iris_multi_reg)
+val_accuracy_iris_multi_reg = accuracy_score(y_val_iris, y_val_pred_iris_multi_reg)
 
-train_accuracy_iris = accuracy_score(y_train_iris, y_val_pred_circles_simple_reg)
-val_accuracy_iris = accuracy_score(y_val_iris, y_val_pred_iris)
+train_accuracy_circle_simple_no_reg = accuracy_score(y_train_circles, y_train_pred_circles_simple_no_reg)
+val_accuracy_circle_simple_no_reg = accuracy_score(y_val_circles, y_val_pred_circles_simple_no_reg)
+train_accuracy_iris_simple_no_reg = accuracy_score(y_train_iris, y_train_pred_iris_simple_no_reg)
+val_accuracy_iris_simple_no_reg = accuracy_score(y_val_iris, y_val_pred_iris_simple_no_reg)
+train_accuracy_circle_multi_no_reg = accuracy_score(y_train_circles, y_train_pred_circles_multi_no_reg)
+val_accuracy_circle_multi_no_reg = accuracy_score(y_val_circles, y_val_pred_circles_multi_no_reg)
+train_accuracy_iris_multi_no_reg = accuracy_score(y_train_iris, y_train_pred_iris_multi_no_reg)
+val_accuracy_iris_multi_no_reg = accuracy_score(y_val_iris, y_val_pred_iris_multi_no_reg)
 
-print(f"\nТочність для навчального набору (Iris): {train_accuracy_iris:.4f}")
-print(f"Точність для валідаційного набору (Iris): {val_accuracy_iris:.4f}")
+print(f"\nТочність для навчального набору (Сircle, simple, reg): {train_accuracy_circle_simple_reg:.5f}")
+print(f"Точність для валідаційного набору (Сircle, simple, reg): {val_accuracy_circle_simple_reg:.5f}")
+print("\nЗвіт по метриках для набору (Сircle, simple, reg):")
+print(classification_report(y_val_circles, y_val_pred_circles_simple_reg))
 
-# Детальний звіт по метриках для валідаційного набору
-print("\nЗвіт по метриках для набору Iris:")
-print(classification_report(y_val_iris, y_val_pred_iris))
+print(f"\nТочність для навчального набору (Сircle, multi, reg): {train_accuracy_circle_multi_reg:.5f}")
+print(f"Точність для валідаційного набору (Сircle, multi, reg): {val_accuracy_circle_multi_reg:.5f}")
+print("\nЗвіт по метриках для набору (Сircle, multi, reg):")
+print(classification_report(y_val_circles, y_val_pred_circles_multi_reg))
+
+print(f"\nТочність для навчального набору (Сircle, simple, no reg): {train_accuracy_circle_simple_no_reg:.5f}")
+print(f"Точність для валідаційного набору (Сircle, simple, no reg): {val_accuracy_circle_simple_no_reg:.5f}")
+print("\nЗвіт по метриках для набору (Сircle, simple, no reg):")
+print(classification_report(y_val_circles, y_val_pred_circles_simple_no_reg))
+
+print(f"\nТочність для навчального набору (Сircle, multi, no reg): {train_accuracy_circle_multi_no_reg:.5f}")
+print(f"Точність для валідаційного набору (Сircle, multi, no reg): {val_accuracy_circle_multi_no_reg:.5f}")
+print("\nЗвіт по метриках для набору (Сircle, multi, no reg):")
+print(classification_report(y_val_circles, y_val_pred_circles_multi_no_reg))
+
+print(f"\nТочність для навчального набору (Iris, simple, reg): {train_accuracy_iris_simple_reg:.5f}")
+print(f"Точність для валідаційного набору (Iris, simple, reg): {val_accuracy_iris_simple_reg:.5f}")
+print("\nЗвіт по метриках для набору (Iris, simple, reg):")
+print(classification_report(y_val_iris, y_val_pred_iris_simple_reg))
+
+print(f"\nТочність для навчального набору (Iris, multi, reg): {train_accuracy_iris_multi_reg:.5f}")
+print(f"Точність для валідаційного набору (Iris, multi, reg): {val_accuracy_iris_multi_reg:.5f}")
+print("\nЗвіт по метриках для набору (Iris, multi, reg):")
+print(classification_report(y_val_iris, y_val_pred_iris_multi_reg))
+
+print(f"\nТочність для навчального набору (Iris, simple, no reg): {train_accuracy_iris_simple_no_reg:.5f}")
+print(f"Точність для валідаційного набору (Iris, simple, no reg): {val_accuracy_iris_simple_no_reg:.5f}")
+print("\nЗвіт по метриках для набору (Iris, simple, no reg):")
+print(classification_report(y_val_iris, y_val_pred_iris_simple_no_reg))
+
+print(f"\nТочність для навчального набору (Iris, multi, no reg): {train_accuracy_iris_multi_no_reg:.5f}")
+print(f"Точність для валідаційного набору (Iris, multi, no reg): {val_accuracy_iris_multi_no_reg:.5f}")
+print("\nЗвіт по метриках для набору (Iris, multi, no reg):")
+print(classification_report(y_val_iris, y_val_pred_iris_multi_no_reg))
 
 
 # 7 завдання - Розрахувати додатковi результати моделей, наприклад, апостерiорнi iмовiрностi або iншi (згiдно з варiантом).
+print("\nЗавдання 7")
+test_example_circles_simple_reg = X_val_circles[0].reshape(1, -1)
+proba_test_circles_simple_reg = simple_log_reg_circles.predict_proba(test_example_circles_simple_reg)
+test_example_circles_simple_no_reg = X_val_circles[0].reshape(1, -1)
+proba_test_circles_simple_no_reg = simple_log_no_reg_circles.predict_proba(test_example_circles_simple_no_reg)
+test_example_circles_multi_reg = X_val_circles[0].reshape(1, -1)
+proba_test_circles_multi_reg = multi_log_reg_circles.predict_proba(test_example_circles_multi_reg)
+test_example_circles_multi_no_reg = X_val_circles[0].reshape(1, -1)
+proba_test_circles_multi_no_reg = multi_log_no_reg_circles.predict_proba(test_example_circles_multi_no_reg)
 
-# Обираємо перший тестовий приклад для набору "Кільця"
-test_example_circles = X_val_circles[0].reshape(1, -1)  # Один тестовий приклад
-proba_circles = logreg_circles.predict_proba(test_example_circles)
+test_example_iris_simple_reg = X_val_iris[0].reshape(1, -1)
+proba_test_iris_simple_reg = simple_log_reg_iris.predict_proba(test_example_iris_simple_reg)
+test_example_iris_simple_no_reg = X_val_iris[0].reshape(1, -1)
+proba_test_iris_simple_no_reg = simple_log_no_reg_iris.predict_proba(test_example_iris_simple_no_reg)
+test_example_iris_multi_reg = X_val_iris[0].reshape(1, -1)
+proba_test_iris_multi_reg = multi_log_reg_iris.predict_proba(test_example_iris_multi_reg)
+test_example_iris_multi_no_reg = X_val_iris[0].reshape(1, -1)
+proba_test_iris_multi_no_reg = multi_log_no_reg_iris.predict_proba(test_example_iris_multi_no_reg)
 
-print(f"Тестовий приклад для 'Кільця': {test_example_circles}")
-print(f"Апостеріорні ймовірності для тестового прикладу (Circles): {proba_circles}")
+print(f"Тестовий приклад для (Circle, simple, reg): {test_example_circles_simple_reg}")
+print(f"Апостеріорні ймовірності для тестового прикладу (Circle, simple, reg): {proba_test_circles_simple_reg}")
+print(f"Тестовий приклад для (Circle, simple, no reg): {test_example_circles_simple_no_reg}")
+print(f"Апостеріорні ймовірності для тестового прикладу (Circle, simple, no reg): {proba_test_circles_simple_no_reg}")
+print(f"Тестовий приклад для (Circle, multi, reg): {test_example_circles_multi_reg}")
+print(f"Апостеріорні ймовірності для тестового прикладу (Circle, multi, reg): {proba_test_circles_multi_reg}")
+print(f"Тестовий приклад для (Circle, multi, no reg): {test_example_circles_multi_no_reg}")
+print(f"Апостеріорні ймовірності для тестового прикладу (Circle, multi, no reg): {proba_test_circles_multi_no_reg}")
 
-# Обираємо перший тестовий приклад для набору Iris
-test_example_iris = X_val_iris[0].reshape(1, -1)  # Один тестовий приклад
-proba_iris = logreg_iris.predict_proba(test_example_iris)
-
-print(f"\nТестовий приклад для Iris: {test_example_iris}")
-print(f"Апостеріорні ймовірності для тестового прикладу (Iris): {proba_iris}")
-
-
-# Розрахунок апостеріорних ймовірностей для набору 'Кільця'proba_circles = logreg_circles.predict_proba(X_val_circles)
-print("Апостеріорні ймовірності для валідаційного набору (Circles):")
-print(proba_circles[:5])  # Виводимо перші 5 записів для прикладу
-# Розрахунок апостеріорних ймовірностей для набору Irisproba_iris = logreg_iris.predict_proba(X_val_iris)
-print("\nАпостеріорні ймовірності для валідаційного набору (Iris):")
-print(proba_iris[:5])  # Виводимо перші 5 записів для прикладу
+print(f"Тестовий приклад для (Iris, simple, reg): {test_example_iris_simple_reg}")
+print(f"Апостеріорні ймовірності для тестового прикладу (Iris, simple, reg): {proba_test_iris_simple_reg}")
+print(f"Тестовий приклад для (Iris, simple, no reg): {test_example_iris_simple_no_reg}")
+print(f"Апостеріорні ймовірності для тестового прикладу (Iris, simple, no reg): {proba_test_iris_simple_no_reg}")
+print(f"Тестовий приклад для (Iris, multi, reg): {test_example_iris_multi_reg}")
+print(f"Апостеріорні ймовірності для тестового прикладу (Iris, multi, reg): {proba_test_iris_multi_reg}")
+print(f"Тестовий приклад для (Iris, multi, no reg): {test_example_iris_multi_no_reg}")
+print(f"Апостеріорні ймовірності для тестового прикладу (Iris, multi, no reg): {proba_test_iris_multi_no_reg}")
 
 
 # 10 завдання - В задачах регресiї розрахувати для кожної моделi наступнi критерiї якостi, окремо на навчальнiй та валiдацiйнiй множинах:
 # • коефiцiєнт детермiнацiї R2
 # • помилки RMSE, MAE та MAPE.
+print("\nЗавдання 10")
+def evaluate_regression_model(y_true, y_pred, model_name=""):
+    # R²
+    r2 = r2_score(y_true, y_pred)
 
+    # RMSE (Root Mean Squared Error)
+    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+
+    # MAE (Mean Absolute Error)
+    mae = mean_absolute_error(y_true, y_pred)
+
+    # MAPE (Mean Absolute Percentage Error) з ігноруванням нульових значень в y_true
+    epsilon = 1e-10  # дуже маленьке значення, яке додаємо до y_true для уникнення ділення на нуль
+    non_zero_indices = y_true != 0
+    mape = np.mean(np.abs((y_true[non_zero_indices] - y_pred[non_zero_indices]) / y_true[non_zero_indices])) * 100
+
+    # Виведення результатів
+    print(f"\nОцінка моделі {model_name}:")
+    print(f"R²: {r2:.3f}")
+    print(f"RMSE: {rmse:.3f}")
+    print(f"MAE: {mae:.3f}")
+    print(f"MAPE: {mape:.3f}%")
+
+
+def evaluate_models(models):
+    for model_name, (model, X_train, y_train, X_val, y_val) in models.items():
+        # Прогноз на навчальному наборі
+        y_train_pred = model.predict(X_train)
+        print(f"\nОцінка на навчальній множині для {model_name}:")
+        evaluate_regression_model(y_train, y_train_pred, model_name)
+
+        # Прогноз на валідаційному наборі
+        y_val_pred = model.predict(X_val)
+        print(f"\nОцінка на валідаційній множині для {model_name}:")
+        evaluate_regression_model(y_val, y_val_pred, model_name)
+
+
+# Словник моделей
+models = {
+    "Проста логістична регресія (регуляризація, кільця)": (
+        simple_log_reg_circles, X_train_circles, y_train_circles, X_val_circles, y_val_circles),
+    "Поліноміальна логістична регресія (регуляризація, кільця)": (
+        multi_log_reg_circles, X_train_circles, y_train_circles, X_val_circles, y_val_circles),
+    "Проста логістична регресія (без регуляризації, кільця)": (
+        simple_log_no_reg_circles, X_train_circles, y_train_circles, X_val_circles, y_val_circles),
+    "Поліноміальна логістична регресія (без регуляризації, кільця)": (
+        multi_log_no_reg_circles, X_train_circles, y_train_circles, X_val_circles, y_val_circles),
+    "Проста логістична регресія (регуляризація, Iris)": (
+        simple_log_reg_iris, X_train_iris, y_train_iris, X_val_iris, y_val_iris),
+    "Поліноміальна логістична регресія (регуляризація, Iris)": (
+        multi_log_reg_iris, X_train_iris, y_train_iris, X_val_iris, y_val_iris),
+    "Проста логістична регресія (без регуляризації, Iris)": (
+        simple_log_no_reg_iris, X_train_iris, y_train_iris, X_val_iris, y_val_iris),
+    "Поліноміальна логістична регресія (без регуляризації, Iris)": (
+        multi_log_no_reg_iris, X_train_iris, y_train_iris, X_val_iris, y_val_iris)
+}
+
+# Виклик функції для оцінки моделей
+evaluate_models(models)
 
 
 # 11 завдання - Спробувати виконати решiтчастий пошук (grid search) для пiдбору гiперпараметрiв моделей.
+print("\nЗавдання 11")
+warnings.filterwarnings("ignore")
+param_grid = {
+    'C': [0.01, 0.1, 1, 10, 100],  # Регуляризація
+    'solver': ['liblinear', 'lbfgs', 'newton-cg', 'saga'],  # Методи оптимізації
+    'penalty': ['l1', 'l2', 'elasticnet'],  # Тип регуляризації
+    'multi_class': ['ovr', 'multinomial'],  # Тип класифікації
+    'max_iter': [100, 200, 500]  # Максимальна кількість ітерацій
+}
+
+# Решітчастий пошук для простої логістичної регресії
+grid_search_circle = GridSearchCV(LogisticRegression(), param_grid, cv=5, scoring='accuracy')
+grid_search_circle.fit(X_train_circles, y_train_circles)
+print("Найкращі параметри для простої логістичної регресії (Circle): ", grid_search_circle.best_params_)
+print("Найкраща точність: ", grid_search_circle.best_score_)
+
+# Решітчастий пошук для простої логістичної регресії
+grid_search_iris = GridSearchCV(LogisticRegression(), param_grid, cv=5, scoring='accuracy')
+grid_search_iris.fit(X_train_iris, y_train_iris)
+print("Найкращі параметри для простої логістичної регресії (Iris): ", grid_search_iris.best_params_)
+print("Найкраща точність: ", grid_search_iris.best_score_)
 
 
-# 12 завдання - Зробити висновки про якiсть роботи моделей на дослiджених даних. На основi критерiїв якостi
+# 12. Зробити висновки про якiсть роботи моделей на дослiджених даних. На основi критерiїв якостi
 # спробувати обрати найкращу модель.
+
 
 
 # 13 завдання - Навчити моделi на пiдмножинах навчальних даних. Оцiнити, наскiльки
 # розмiр навчальної множини впливає на якiсть моделi.
+print("\nЗавдання 13")
+def evaluate_on_different_sample_sizes(X, y, sample_sizes, model_class, **kwargs):
+    results = []
+    for size in sample_sizes:
+        # Split the data into training and validation sets
+        X_train, X_val, y_train, y_val = train_test_split(X, y, train_size=size, random_state=42)
 
 
 
-"""
-# Оцінка якості моделі
-r2_circles = r2_score(y_val_circles, y_pred_circles)
-rmse_circles = np.sqrt(mean_squared_error(y_val_circles, y_pred_circles))
-mae_circles = mean_absolute_error(y_val_circles, y_pred_circles)
-mape_circles = mean_absolute_percentage_error(y_val_circles, y_pred_circles)
+        # Initialize the model
+        model = model_class(**kwargs)
 
-# Виводимо результати
-print("Результати для make_circles:")
-print(f"R²: {r2_circles:.4f}, RMSE: {rmse_circles:.4f}, MAE: {mae_circles:.4f}, MAPE: {mape_circles:.4f}%")
+        # Train the model
+        model.fit(X_train, y_train)
 
-# Оцінка якості моделі
-r2_iris = r2_score(y_val_iris, y_pred_iris)
-rmse_iris = np.sqrt(mean_squared_error(y_val_iris, y_pred_iris))
-mae_iris = mean_absolute_error(y_val_iris, y_pred_iris)
-mape_iris = mean_absolute_percentage_error(y_val_iris, y_pred_iris)
+        # Predict on validation set
+        y_val_pred = model.predict(X_val)
 
-# Виводимо результати
-print("Результати для load_iris:")
-print(f"R²: {r2_iris:.4f}, RMSE: {rmse_iris:.4f}, MAE: {mae_iris:.4f}, MAPE: {mape_iris:.4f}%")
-"""
+        # Calculate accuracy
+        accuracy = accuracy_score(y_val, y_val_pred)
+        results.append((size, accuracy))
 
+        # Print classification report
+        print(f"Sample Size: {size:.0%} - Accuracy: {accuracy:.4f}")
+        print(classification_report(y_val, y_val_pred))
+
+    return results
+
+# Define sample sizes to test
+sample_sizes = [0.1, 0.2, 0.5, 0.99]  # 10%, 20%, 50%, 100%
+
+# Evaluate models on the circles dataset
+print("Evaluating Circles Dataset (simple):")
+evaluate_on_different_sample_sizes(X, y, sample_sizes, LogisticRegression)
+
+print("Evaluating Circles Dataset (multi):")
+evaluate_on_different_sample_sizes(X, y, sample_sizes, LogisticRegression, multi_class='multinomial',
+                                   solver='lbfgs')
+
+# Evaluate models on the Iris dataset
+print("\nEvaluating Iris Dataset:")
+evaluate_on_different_sample_sizes(X_iris, y_iris, sample_sizes, LogisticRegression)
+
+print("\nEvaluating Iris Dataset (multi):")
+evaluate_on_different_sample_sizes(X_iris, y_iris, sample_sizes, LogisticRegression, multi_class='multinomial',
+                                   solver='lbfgs')
+
+
+# 14. Кожний варiант мiстить два набори даних. Дослiдити обидва набори за
+# наведеними вище етапами. Можна обрати власний набiр даних (повiдо-
+# мивши попередньо про це викладача), наприклад, з цiкавої вам практи-
+# чної задачi. Для кожного набору спробувати пiдiбрати найкращу модель.
