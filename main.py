@@ -467,7 +467,7 @@ def evaluate_on_different_sample_sizes(X, y, sample_sizes, model_class, **kwargs
     return results
 
 # Define sample sizes to test
-sample_sizes = [0.1, 0.2, 0.5, 0.99]  # 10%, 20%, 50%, 100%
+sample_sizes = [0.1, 0.2, 0.5, 0.99]  # 10%, 20%, 50%, 99%
 
 # Evaluate models on the circles dataset
 print("Evaluating Circles Dataset (simple):")
