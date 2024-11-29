@@ -164,11 +164,11 @@ if __name__ == "__main__":
     # Task 1
     X_moons, y_moons, X_blobs, y_blobs = visual_dataset()
 
-    # # Task 2, 3, 4
+    # Task 2, 3, 4
     label_moons = spectral_clustering_and_plot(X_moons, 2, "make_moons", 1000)
     label_blobs = spectral_clustering_and_plot(X_blobs, 4, "make_blobs", 20000)
 
-    # # Task 5
+    # Task 5
     diff_size_clust()
 
     # Task 6
@@ -200,3 +200,34 @@ if __name__ == "__main__":
     for model, X, Y, param, name in zip(models, datasets_X, datasets_Y, params, names):
         print(f"\nStability test for model {param}")
         stability_test(X, Y, model, name)
+
+    # Analysing default models
+    start_time = time.time()
+    model_moon = SpectralClustering(n_clusters=2, affinity='rbf', gamma=1.0, random_state=42)
+    label_moon = model_moon.fit_predict(X_moons)
+    end_time = time.time()
+    print(f"moons default - Час кластеризації (Розмір вибірки - 1000): {end_time - start_time:.4f} секунд")
+    print("Metrics")
+    evaluate_clustering(X_moons, y_moons, label_moon)
+    print("\nStability test")
+    stability_test(X_moons, y_moons, model_moon, "default moons (n_clusters=2, affinity='rbf', gamma=1.0, random_state=42)")
+
+    start_time = time.time()
+    model_blobs = SpectralClustering(n_clusters=4, affinity='rbf', gamma=1.0, random_state=42)
+    label_blobs = model_blobs.fit_predict(X_blobs_new)
+    end_time = time.time()
+    print(f"blobs default - Час кластеризації (Розмір вибірки - 2000): {end_time - start_time:.4f} секунд")
+    print("Metrics")
+    evaluate_clustering(X_blobs_new, y_blobs_new, label_blobs)
+    print("\nStability test")
+    stability_test(X_blobs_new, y_blobs_new, model_blobs, "default blobs (n_clusters=4, affinity='rbf', gamma=1.0, random_state=42)")
+
+    start_time = time.time()
+    model_blobs2 = SpectralClustering(n_clusters=4, affinity='rbf', gamma=1.0, random_state=42)
+    label_blobs2 = model_blobs.fit_predict(X_blobs)
+    end_time = time.time()
+    print(f"blobs default - Час кластеризації (Розмір вибірки - 2000): {end_time - start_time:.4f} секунд")
+    print("Metrics")
+    evaluate_clustering(X_blobs, y_blobs, label_blobs2)
+    print("\nStability test")
+    stability_test(X_blobs, y_blobs, model_blobs2, "default blobs (n_clusters=4, affinity='rbf', gamma=1.0, random_state=42)")
