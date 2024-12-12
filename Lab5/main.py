@@ -2,9 +2,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+import matplotlib.dates as mdates
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.ensemble import AdaBoostRegressor, GradientBoostingRegressor, BaggingRegressor, RandomForestRegressor, ExtraTreesRegressor, VotingRegressor
-from sklearn.svm import SVR
+from sklearn.ensemble import AdaBoostRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_percentage_error
 from sklearn.utils import resample
@@ -20,21 +20,25 @@ AdaBoostRegressor. Розглянути рiзнi значення парамет
 www.kaggle.com/rahulsah06/gooogle-stock-price
 """
 
-def visual_dataset(path=r"C:\Users\User\PycharmProjects\L5\Google_Stock_Price_Test.csv"):
-    data = pd.read_csv(path)
-    data['Date'] = pd.to_datetime(data['Date'])
-    data.sort_values('Date', inplace=True)
 
-    # Вибір ознак і цільової змінної
+def visual_dataset(file_path=r"Google_Stock_Price.csv"):
+    data = pd.read_csv(file_path)
+    data['Date'] = pd.to_datetime(data['Date'], format='%m/%d/%Y')
+    data.set_index('Date', inplace=True)
+    data['Close'] = data['Close'].str.replace(',', '').astype(float)
+
     X = np.arange(len(data)).reshape(-1, 1)  # Номер дня як змінна
     y = data['Close'].values  # Ціна закриття
 
-    # Візуалізація початкових даних
-    plt.figure(figsize=(10, 6))
-    plt.plot(data['Date'], y, label='Google Stock Price')
+    plt.figure(figsize=(12, 6))
+    plt.plot(data.index, data['Close'], label='Closing Price', color='blue')
+    plt.title('Google Stock Closing Price Over Time')
     plt.xlabel('Date')
-    plt.ylabel('Price')
-    plt.title('Google Stock Price Over Time')
+    plt.ylabel('Closing Price ($)')
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
+    plt.gca().xaxis.set_major_locator(mdates.YearLocator())
+    plt.gcf().autofmt_xdate()
+    plt.grid(True)
     plt.legend()
     plt.show()
     return X, y
@@ -47,33 +51,21 @@ def split_dataset(X, y):
 
 
 def build_ensemble_models(X_val, y_val, X_test, y_test):
-    models = {
-        'AdaBoost with DecisionTree': AdaBoostRegressor(estimator=DecisionTreeRegressor(max_depth=3), random_state=42),
-        'AdaBoost with SVR': AdaBoostRegressor(estimator=SVR(kernel='linear'), random_state=42),
-    }
+    model = AdaBoostRegressor(estimator=DecisionTreeRegressor(max_depth=3), random_state=42)
 
-    param_grids = {
-        'AdaBoost with DecisionTree': {
-            'n_estimators': [50, 100],
-            'learning_rate': [0.1, 0.5],
-            'estimator__max_depth': [3, 5],
-        },
-        'AdaBoost with SVR': {
+    param_grids = {'AdaBoost with DecisionTree':{
             'n_estimators': [10, 50, 100],
-            'learning_rate': [0.01, 0.1, 1.0],
-            'estimator__C': [0.1, 1.0, 10.0],
-            'estimator__gamma': ['scale', 'auto'],
-            'estimator__kernel': ['linear', 'rbf']
-        },
+            'learning_rate': [0.1, 0.5, 1],
+            'loss': ['linear', 'square', 'exponential']
+    }
     }
 
     best_models = {}
-    for name, model in models.items():
-        print(f"{name}:")
-        grid_search = GridSearchCV(model, param_grids.get(name, {}), cv=3, scoring='r2')
-        grid_search.fit(X_val, y_val)
-        best_models[name] = grid_search.best_estimator_
-        print(f"Best parameters for {name}: {grid_search.best_params_}")
+    print("AdaBoost with DecisionTree:")
+    grid_search = GridSearchCV(model, param_grids.get('AdaBoost with DecisionTree', {}), cv=3, scoring='r2')
+    grid_search.fit(X_val, y_val)
+    best_models['AdaBoost with DecisionTree'] = grid_search.best_estimator_
+    print(f"Best parameters for AdaBoost with DecisionTree: {grid_search.best_params_}")
 
 
     print("\nMetrics:")
@@ -83,7 +75,7 @@ def build_ensemble_models(X_val, y_val, X_test, y_test):
         y_test_pred = model.predict(X_test)
         elapsed_time = time.time() - start_time
         r2 = r2_score(y_test, y_test_pred)
-        rmse = np.sqrt(mean_squared_error(y_test, y_test_pred))
+        rmse = mean_squared_error(y_test, y_test_pred, squared=False)
         mape = mean_absolute_percentage_error(y_test, y_test_pred)
         results[name] = {'R2': r2, 'RMSE': rmse, 'MAPE': mape, 'Time': elapsed_time}
         print(f"{name} - R2: {r2:.4f}, RMSE: {rmse:.4f}, MAPE: {mape:.4f}, Time: {elapsed_time:.4f}s")
@@ -129,11 +121,12 @@ def build_ensemble_models(X_val, y_val, X_test, y_test):
     # Прогнози ансамблю
     y_test_pred_ensemble = ensemble_model.predict(X_test)
 
+
     plt.figure(figsize=(12, 8))
     plt.scatter(X_test, y_test, color='blue', label='True Values', alpha=0.6)
     plt.plot(X_test, y_test_pred_base, color='green', linestyle='--', label='Base Model Predictions')
     plt.plot(X_test, y_test_pred_ensemble, color='red', label=f'AdaBoost Predictions')
-    plt.xlabel('Time (days)')
+    plt.xlabel('Date')
     plt.ylabel('Price')
     plt.title('Comparison of Predictions: Base Model vs Ensemble')
     plt.legend()
@@ -223,10 +216,10 @@ def metrics(X_train, y_train, X_test, y_test):
 if __name__ == "__main__":
     # Task 1
     X, y = visual_dataset()
-
+    #
     # Task 2
     X_train, y_train, X_val, y_val, X_test, y_test = split_dataset(X, y)
-
+    #
     # Task 3, 4
     build_ensemble_models(X_val, y_val, X_test, y_test)
 
